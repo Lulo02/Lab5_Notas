@@ -1,23 +1,31 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package lab5_notas;
 
 import java.awt.List;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
-/**
- *
- * @author Lulo
- */
+
 public class Notas extends javax.swing.JFrame {
 
    DefaultTableModel TablaA = new DefaultTableModel();
+   
     DefaultTableModel TablaB = new DefaultTableModel();
+    
      ArrayList Not= new ArrayList<>();
+     
+     
+     
     public Notas() {
         initComponents();
     }
@@ -34,9 +42,9 @@ public class Notas extends javax.swing.JFrame {
         CantE = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jTextField3 = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        TomaNomb = new javax.swing.JTextField();
+        PoneGrafico = new javax.swing.JLabel();
+        TituloG = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -72,14 +80,17 @@ public class Notas extends javax.swing.JFrame {
         getContentPane().add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 170, -1, -1));
 
         jButton3.setText("Mostrar historico");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 390, -1, -1));
-        getContentPane().add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 390, 120, -1));
+        getContentPane().add(TomaNomb, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 390, 120, -1));
 
-        jLabel3.setText("jLabel3");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 170, 290, 260));
-
-        jLabel4.setText("jLabel4");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 180, -1, -1));
+        PoneGrafico.setText("jLabel3");
+        getContentPane().add(PoneGrafico, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 110, 320, 320));
+        getContentPane().add(TituloG, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 70, 270, 30));
 
         jTable1.setModel(TablaA);
         jScrollPane1.setViewportView(jTable1);
@@ -90,7 +101,7 @@ public class Notas extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -101,7 +112,7 @@ public class Notas extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 640, 120));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 390, 120));
 
         jTable2.setModel(TablaB);
         jScrollPane2.setViewportView(jTable2);
@@ -131,12 +142,16 @@ public class Notas extends javax.swing.JFrame {
     private void CrearTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CrearTActionPerformed
         
       int Cantidad_notas= Integer.parseInt(CantN.getText());
+      
         TablaA.setColumnCount(Cantidad_notas+1);
+        
         TablaA.setRowCount(Integer.parseInt(CantE.getText()));
     }//GEN-LAST:event_CrearTActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        
         TablaB.setRowCount(TablaA.getRowCount());
+        
         TablaB.setColumnCount(3);
         
         for(int i=0; i<TablaB.getRowCount();i++){
@@ -144,35 +159,54 @@ public class Notas extends javax.swing.JFrame {
               TablaB.setValueAt(TablaA.getValueAt(i, 0), i, 0);
             }
             
-        
         Promedio();
+        
         Resultado();
        
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+         TituloG.setText("Historico de "+TomaNomb.getText());
+        CreaGrafica();
+        MuestaGrafica();
+        TomaNomb.setText("");
+    }//GEN-LAST:event_jButton3ActionPerformed
 
    
     public void Promedio(){
            
         float nota;
+        
         float sumatoria=0;
+        
         float promedio=0;
        
        
         for(int i=0; i<TablaA.getRowCount();i++){
+            
             for(int j=1;j<TablaA.getColumnCount();j++){
     
-                nota=  Integer.parseInt((String) TablaA.getValueAt(i,j));
+                nota=  Float.parseFloat((String) TablaA.getValueAt(i,j));
+                
                 sumatoria=sumatoria+nota;
         
             }
             
             promedio=sumatoria/(TablaA.getColumnCount()-1);
+            
             TablaB.setValueAt(promedio, i, 1);
+            
             sumatoria=0;
+            
             promedio=0;
         }
         
     }
+    
+    
+    
+    
+    
     
     public void Resultado(){
         
@@ -188,16 +222,79 @@ public class Notas extends javax.swing.JFrame {
             else{
                 TablaB.setValueAt("Aprobó", i, 2);
             }
-            
-            
+           
         }
-        
-        
-        
         
     }
        
   
+    
+    public void CreaGrafica(){
+        
+     
+        
+        XYSeries Grafico_notas = new XYSeries("XYGraph");
+        
+         String nombre=TomaNomb.getText();
+        
+        nombre.toLowerCase();
+        
+        for(int i=0;i<TablaB.getRowCount();i++){
+            
+            if(nombre.equals(TablaB.getValueAt(i, 0))){
+                for(int j=1; j<TablaA.getColumnCount();j++){
+            float nota= Float.parseFloat((String) TablaA.getValueAt(0, j));
+          
+            Grafico_notas.add(i-1,nota);
+        }
+            }
+            
+        }
+       
+        
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(Grafico_notas);
+        
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "TITULO", // Título
+            "Numero Nota", // etiqueta para el eje x
+            "valor de nota", // etiqueta para el eje y
+            dataset, // Dataset
+            PlotOrientation.VERTICAL, // Orientación
+            true, // Mostrar leyenda
+            true, // Usar tooltips
+            false // Configurar para generar URLs
+            );
+        
+      /*  String salidaImagen= "chart.jpg";
+        boolean existe=new File (salidaImagen).exists();//verifica si existe
+    
+    
+        //si existe lo borra
+        if(existe){
+            File archivo=new File(salidaImagen);
+            archivo.delete();
+        }*/
+        
+        try {
+            ChartUtilities.saveChartAsJPEG( new File("D:\\Lulo\\OneDrive\\Escritorio\\Programación\\Lab5_Notas\\Lab5_Notas\\src\\lab5_notas\\Grafica\\cuadrito.jpg"),
+            chart, 320, 320);
+            } catch (IOException e) {
+            System.err.println("Error al crear el archivo.");
+            }
+        
+       
+        
+    }
+    
+    
+    public void MuestaGrafica(){
+        
+         ImageIcon Cuadro = new ImageIcon();
+        Cuadro=new ImageIcon(getClass().getResource("/lab5_notas/Grafica/cuadrito.jpg"));
+        PoneGrafico.setIcon(Cuadro);
+        
+    }
   
     
     public static void main(String args[]) {
@@ -236,18 +333,18 @@ public class Notas extends javax.swing.JFrame {
     private javax.swing.JTextField CantE;
     private javax.swing.JTextField CantN;
     private javax.swing.JButton CrearT;
+    private javax.swing.JLabel PoneGrafico;
+    private javax.swing.JLabel TituloG;
+    private javax.swing.JTextField TomaNomb;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
-    private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 }
